@@ -1,3 +1,4 @@
+import os 
 from flask import Flask, jsonify
 from .config import DevelopmentConfig
 from .extensions import db, api, jwt, oauth
@@ -15,12 +16,24 @@ from .utils.logging_config import configure_logging
 def create_app(config_class=DevelopmentConfig):
     configure_logging()
     app = Flask(__name__)
-    app.config.from_object(config_class)
+    app.config.from_object(config_class)    
 
     db.init_app(app)
     api.init_app(app)
     jwt.init_app(app)
     oauth.init_app(app)
+
+    oauth.init_app(app)
+
+    oauth.register(
+        name="google",
+        client_id=os.getenv("GOOGLE_CLIENT_ID"),
+        client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+        server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+        client_kwargs={"scope": "openid email profile"},
+    )
+
+
 
     @jwt.unauthorized_loader
     def unauthorized_callback(reason):

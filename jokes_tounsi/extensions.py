@@ -3,6 +3,8 @@ from flask_smorest import Api
 from flask_jwt_extended import JWTManager
 from authlib.integrations.flask_client import OAuth
 
+
+
 db = SQLAlchemy()
 api = Api()
 jwt = JWTManager()
