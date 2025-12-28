@@ -2,6 +2,9 @@ from flask import Flask, jsonify
 from .config import DevelopmentConfig
 from .extensions import db, api, jwt, oauth
 
+# NEW: import the meta blueprint
+from .resources.meta import blp as MetaBlueprint
+
 
 def create_app(config_class=DevelopmentConfig):
     app = Flask(__name__)
@@ -13,7 +16,10 @@ def create_app(config_class=DevelopmentConfig):
     jwt.init_app(app)
     oauth.init_app(app)
 
-    # Simple health check route (no blueprints yet)
+    # Register blueprints with Flask-Smorest
+    api.register_blueprint(MetaBlueprint, url_prefix="/api/v1")
+
+    # Simple health route (plain Flask, outside Flask-Smorest)
     @app.route("/health")
     def health():
         return jsonify({"status": "ok", "app": "jokesTOUNSI"})
