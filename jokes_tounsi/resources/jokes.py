@@ -9,6 +9,8 @@ from ..models import Joke
 from ..schemas import JokeSchema, JokeCreateSchema, JokeListQueryArgs
 from ..security import role_required
 
+import logging
+logger = logging.getLogger(__name__)
 
 
 blp = Blueprint(
@@ -84,6 +86,7 @@ class JokesList(MethodView):
         except SQLAlchemyError:
             db.session.rollback()
             abort(500, message="Error saving joke to the database.")
+        logger.info("User %s created a new joke %s", author_id, joke.id)
 
         return joke
 
@@ -143,5 +146,6 @@ class JokeDetail(MethodView):
         except SQLAlchemyError:
             db.session.rollback()
             abort(500, message="Error deleting joke.")
+        logger.warning("Admin %s deleted joke %s", user_id, joke_id)
 
         return {"message": "Joke deleted successfully."}

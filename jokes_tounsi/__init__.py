@@ -9,9 +9,11 @@ from .models import User, Joke
 from flask_jwt_extended import JWTManager
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_jwt_extended import verify_jwt_in_request
-
+from werkzeug.exceptions import HTTPException
+from .utils.logging_config import configure_logging
 
 def create_app(config_class=DevelopmentConfig):
+    configure_logging()
     app = Flask(__name__)
     app.config.from_object(config_class)
 
@@ -36,6 +38,26 @@ def create_app(config_class=DevelopmentConfig):
     api.register_blueprint(MetaBlueprint, url_prefix="/api/v1")
     api.register_blueprint(JokesBlueprint, url_prefix="/api/v1")
     api.register_blueprint(AuthBlueprint, url_prefix="/api/v1")
+        # error handlers
+    @app.errorhandler(HTTPException)
+    def handle_http_exception(e):
+        # All HTTP errors (404, 405, etc.) as JSON
+        response = {
+            "code": e.code,
+            "message": e.description,
+            "status": e.name,
+        }
+        return jsonify(response), e.code
+
+    @app.errorhandler(Exception)
+    def handle_unexpected_exception(e):
+        # Unexpected errors as generic 500 JSON
+        response = {
+            "code": 500,
+            "message": "Internal server error",
+            "status": "InternalServerError",
+        }
+        return jsonify(response), 500
 
     @app.route("/health")
     def health():
