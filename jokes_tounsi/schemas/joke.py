@@ -1,4 +1,12 @@
 from marshmallow import Schema, fields, validate
+from ..utils.constants import (
+    AGE_GROUPS,
+    ERAS,
+    REGIONS,
+    ACCEPTABILITY_LEVELS,
+    DELIVERY_TYPES,
+)
+
 
 
 class JokeBaseSchema(Schema):
@@ -6,11 +14,26 @@ class JokeBaseSchema(Schema):
     text_fr = fields.String(load_default=None)
     text_en = fields.String(load_default=None)
 
-    age_group = fields.String(load_default=None)
-    era = fields.String(load_default=None)
-    region = fields.String(load_default=None)
-    acceptability = fields.String(load_default=None)
-    delivery_type = fields.String(load_default=None)
+    age_group = fields.String(
+        load_default=None,
+        validate=validate.OneOf(AGE_GROUPS),
+    )
+    era = fields.String(
+        load_default=None,
+        validate=validate.OneOf(ERAS),
+    )
+    region = fields.String(
+        load_default=None,
+        validate=validate.OneOf(REGIONS),
+    )
+    acceptability = fields.String(
+        load_default=None,
+        validate=validate.OneOf(ACCEPTABILITY_LEVELS),
+    )
+    delivery_type = fields.String(
+        load_default=None,
+        validate=validate.OneOf(DELIVERY_TYPES),
+    )
 
     tone = fields.String(load_default=None)
     rhythm = fields.String(load_default=None)
