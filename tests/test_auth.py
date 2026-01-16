@@ -4,7 +4,7 @@ import json
 def test_register_user(client):
     """Test user registration."""
     response = client.post(
-        "/api/v1/auth/register",
+        "/api/v1/register",
         json={
             "email": "test@example.com",
             "password": "password123",
@@ -23,7 +23,7 @@ def test_register_duplicate_email(client):
     """Test registration with duplicate email."""
     # Register first user
     client.post(
-        "/api/v1/auth/register",
+        "/api/v1/register",
         json={
             "email": "test@example.com",
             "password": "password123",
@@ -33,7 +33,7 @@ def test_register_duplicate_email(client):
     
     # Try to register with same email
     response = client.post(
-        "/api/v1/auth/register",
+        "/api/v1/register",
         json={
             "email": "test@example.com",
             "password": "password456",
@@ -48,7 +48,7 @@ def test_login(client):
     """Test user login."""
     # Register user first
     client.post(
-        "/api/v1/auth/register",
+        "/api/v1/register",
         json={
             "email": "test@example.com",
             "password": "password123",
@@ -58,7 +58,7 @@ def test_login(client):
     
     # Login
     response = client.post(
-        "/api/v1/auth/login",
+        "/api/v1/login",
         json={
             "email": "test@example.com",
             "password": "password123"
@@ -75,7 +75,7 @@ def test_login_invalid_password(client):
     """Test login with wrong password."""
     # Register user
     client.post(
-        "/api/v1/auth/register",
+        "/api/v1/register",
         json={
             "email": "test@example.com",
             "password": "password123",
@@ -85,7 +85,7 @@ def test_login_invalid_password(client):
     
     # Try to login with wrong password
     response = client.post(
-        "/api/v1/auth/login",
+        "/api/v1/login",
         json={
             "email": "test@example.com",
             "password": "wrongpassword"
