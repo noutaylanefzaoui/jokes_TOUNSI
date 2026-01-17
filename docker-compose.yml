@@ -1,0 +1,17 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./instance:/app/instance
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - DATABASE_URL=sqlite:////app/instance/jokes_prod.db
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - OAUTH2_REDIRECT_URI=${OAUTH2_REDIRECT_URI}
+      # Required for OAuth over HTTP in local docker
+      - OAUTHLIB_INSECURE_TRANSPORT=1
