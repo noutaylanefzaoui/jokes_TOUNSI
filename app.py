@@ -1,12 +1,12 @@
 import os
 from dotenv import load_dotenv
-from jokes_tounsi.config import DevelopmentConfig
-from jokes_tounsi import create_app, db
-from jokes_tounsi import models
-
 
 # Load environment variables from .env
 load_dotenv()
+
+from jokes_tounsi.config import DevelopmentConfig
+from jokes_tounsi import create_app, db
+from jokes_tounsi import models
 
 # Determine config
 env = os.getenv("FLASK_ENV", "development")

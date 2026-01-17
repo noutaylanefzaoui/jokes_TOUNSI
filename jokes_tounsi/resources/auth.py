@@ -1,10 +1,11 @@
 import logging
-from flask import request
+import os
+from flask import request, url_for, jsonify, current_app
 from flask_smorest import Blueprint, abort
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 from werkzeug.exceptions import Conflict
 
-from ..extensions import db
+from ..extensions import db, oauth
 from ..models import User
 from ..schemas import (
     UserRegisterSchema,
@@ -129,8 +130,53 @@ def change_user_role(args):
     return user
 
 
-@blp.route("/debug-users", methods=["GET"])
-def debug_users():
-    """Temporary: list all users for debugging."""
-    users = User.query.all()
-    return [u.to_dict() for u in users], 200
+@blp.route("/auth/google")
+def google_login():
+    """Initiate Google OAuth login."""
+    redirect_uri = url_for('auth.google_callback', _external=True)
+    try:
+        return oauth.google.authorize_redirect(redirect_uri)
+    except Exception as e:
+        with open("error.log", "w") as f:
+            f.write(str(e))
+        return jsonify({"error": str(e), "type": type(e).__name__}), 500
+
+@blp.route("/auth/google/callback")
+def google_callback():
+    """Handle Google OAuth callback."""
+    if os.getenv("FLASK_ENV") == "development":
+        os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+    try:
+        token = oauth.google.authorize_access_token()
+        user_info = token['userinfo']
+        
+        # Find or create user
+        user = User.query.filter_by(google_id=user_info['sub']).first()
+        if not user:
+            user = User(
+                email=user_info['email'],
+                display_name=user_info['name'],
+                google_id=user_info['sub'],
+                role='user'
+            )
+            db.session.add(user)
+            db.session.commit()
+        
+        # Create JWT
+        access_token = create_access_token(
+            identity=str(user.id), 
+            additional_claims={'role': user.role}
+        )
+        
+        with current_app.app_context():
+            return jsonify({
+                'access_token': access_token,
+                'token_type': 'Bearer',
+                'user': user.to_dict()
+            })
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        logger.error(f"Google auth callback error: {e}")
+        return jsonify({"error": str(e), "type": type(e).__name__}), 500

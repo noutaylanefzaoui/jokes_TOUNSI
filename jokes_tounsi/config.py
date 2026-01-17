@@ -13,8 +13,13 @@ class Config:
     SQLALCHEMY_ECHO = True  # Print SQL queries in dev
     
     # JWT
+    SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-secret-change-me")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+    
+    # Session / Cookies
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
     
     # API
     API_TITLE = "jokesTOUNSI API"

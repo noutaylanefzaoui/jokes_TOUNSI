@@ -14,6 +14,13 @@ def create_app(config_class=DevelopmentConfig):
 
     app = Flask(__name__)
     app.config.from_object(config_class)
+    # Force ensure SECRET_KEY is in config for extensions that look there
+    app.config["SECRET_KEY"] = app.config.get("SECRET_KEY") or app.config.get("JWT_SECRET_KEY")
+    app.secret_key = app.config["SECRET_KEY"]
+    
+    if not app.secret_key:
+        raise RuntimeError("Failed to set secret key! Ensure SECRET_KEY or JWT_SECRET_KEY is set in .env")
+
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -41,12 +48,16 @@ def create_app(config_class=DevelopmentConfig):
 
     @app.errorhandler(Exception)
     def handle_unexpected_exception(e):
+        import traceback
+        traceback.print_exc()  # Print to stderr/stdout
         response = dict(code=500, message="Internal server error", status="InternalServerError")
         return jsonify(response), 500
 
     @app.route("/health")
     def health():
         return jsonify(status="ok", app="jokesTOUNSI")
+
+
 
 
     return app

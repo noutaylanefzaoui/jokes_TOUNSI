@@ -206,25 +206,24 @@ def update_joke(args, joke_id):
 @blp.route("/jokes/<int:joke_id>", methods=["DELETE"])
 @jwt_required()
 @role_required("admin")
+@blp.response(204)
 def delete_joke(joke_id):
-    """Delete a joke (admin only)."""
-    
+    """Delete a joke – admin only."""
     joke = Joke.query.get(joke_id)
     if not joke:
         abort(404, message=f"Joke {joke_id} not found")
-    
-    # Get current user for logging
+
     user_id = get_jwt_identity()
     user = User.query.get(int(user_id))
-    
-    # Delete
+
     try:
         db.session.delete(joke)
         db.session.commit()
-        logger.info(f"Joke {joke_id} deleted by {user.email}")
+        logger.info(f"Joke {joke_id} deleted by {user.email if user else 'unknown'}")
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error deleting joke: {str(e)}")
         abort(500, message="Error deleting joke")
-    
-    return "", 204
+
+    # For 204 No Content, return nothing
+    return
