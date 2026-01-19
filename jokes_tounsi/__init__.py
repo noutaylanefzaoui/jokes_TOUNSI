@@ -8,6 +8,7 @@ from .resources.meta import blp as MetaBlueprint
 from .resources.jokes import blp as JokesBlueprint
 from .resources.auth import blp as AuthBlueprint
 from .utils.logging_config import configure_logging
+from . import models # Ensure models are registered with SQLAlchemy
 
 def create_app(config_class=DevelopmentConfig):
     configure_logging()  

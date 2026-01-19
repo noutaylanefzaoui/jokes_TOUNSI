@@ -18,8 +18,15 @@ COPY . .
 ENV FLASK_ENV=production
 ENV PYTHONUNBUFFERED=1
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh .
+RUN chmod +x docker-entrypoint.sh
+
 # Expose port
 EXPOSE 5000
+
+# Set entrypoint
+ENTRYPOINT ["./docker-entrypoint.sh"]
 
 # Run with Gunicorn
 CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]

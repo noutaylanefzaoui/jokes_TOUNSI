@@ -12,6 +12,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     
     # Authentication fields
+    username = db.Column(db.String(80), unique=True, nullable=True, index=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=True)
     
@@ -48,7 +49,7 @@ class User(db.Model):
     )
     
     def __repr__(self):
-        return f"<User {self.email}>"
+        return f"<User {self.username or self.email}>"
     
     def set_password(self, password):
         """Hash and store password securely."""
@@ -62,6 +63,7 @@ class User(db.Model):
         """Convert user to dictionary for JSON responses."""
         return {
             "id": self.id,
+            "username": self.username,
             "email": self.email,
             "display_name": self.display_name,
             "role": self.role,

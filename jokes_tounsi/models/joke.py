@@ -10,6 +10,9 @@ class Joke(db.Model):
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
     
+    # Joke content
+    content = db.Column(db.Text, nullable=True) # Main content from diagram
+    
     # Joke text (primary language is Tunisian dialect)
     text_tn = db.Column(db.Text, nullable=False)  # Tunisian text
     text_fr = db.Column(db.Text, nullable=True)   # French translation
@@ -27,10 +30,12 @@ class Joke(db.Model):
     rhythm = db.Column(db.String(50), nullable=True) # e.g., "Fast", "Slow"
     
     # Publishing status
+    status = db.Column(db.String(20), default="draft")
     is_published = db.Column(db.Boolean, default=False, index=True)
     
     # Foreign key to user (who created the joke)
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey("categories.category_id"), nullable=True)
     
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), index=True)
@@ -48,6 +53,7 @@ class Joke(db.Model):
         """Convert joke to dictionary for JSON responses."""
         return {
             "id": self.id,
+            "content": self.content,
             "text_tn": self.text_tn,
             "text_fr": self.text_fr,
             "text_en": self.text_en,
@@ -59,7 +65,9 @@ class Joke(db.Model):
             "tone": self.tone,
             "rhythm": self.rhythm,
             "is_published": self.is_published,
-            "author_id": self.author_id,
+            "status": self.status,
+            "user_id": self.user_id,
+            "category_id": self.category_id,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
